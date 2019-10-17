@@ -1,0 +1,24 @@
+{
+    "name": "ikdekker/jira-sync-timesheets",
+    "description": "Allows Jira users to export their timesheets, excluding or including users to external portals.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nick Dekker",
+            "email": "nick@freshcoders.nl"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "lesstif/php-jira-rest-client": "^1.41",
+        "robroypt/odoo-client": "v1.0beta",
+        "zendframework/zend-http": "^2.10",
+        "nesbot/carbon": "^2.25"
+    },
+    "autoload": {
+        "psr-4": {
+            "FreshCoders\\JST\\": "src"
+        }
+    }
+}
