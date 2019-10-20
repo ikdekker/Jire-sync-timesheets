@@ -13,7 +13,10 @@ use JiraRestApi\Issue\JqlQuery;
 use JiraRestApi\JiraException;
 
 /**
- * Interface proxy to allow projects to use this library with ease.
+ * Provider that gathers worklogs through issues. Issues are linked to their worklogs,
+ * the worklog entries can be read by fetching them based on the issue key. After
+ * fetching a list of the logs, the total time of worklogs is aggregated based on the
+ * appropriate clause.
  *
  * @author Nick Dekker <nick@freshcoders.nl>
  */
@@ -50,12 +53,7 @@ class IssueProvider
         // todo: future versions will *probably* support custom JQLs
         // For now, we do not specify a user or any other criteria, because
         // those elements will be filtered in the worklog iteration.
-        // $jql = "project = ($project)"; // disabled, in favour of empty.
-		$jql = ''; // empty jql means all issues
 		$jql = new JqlQuery;
-		// $jql->setProject('WD')
-		// 	->setAssignee('pizatje');
-		// note: these dont work see issue #5
 		$res = $this->service->search($jql->getQuery(),$offset,$batch);
         return $res;
     }
@@ -66,13 +64,7 @@ class IssueProvider
 		$total = [];
 		$issues = $this->jqlFetchIssues($offset);
 
-		// todo fix this loop fetch when git issue #5 is resolved
-		// while ($offset < $issues->getTotal()) {
-
-		// 	$offset += $batch;
-		// 	$issues = array_merge($issues->issues, $this->jqlFetchIssues($offset, $batch)->issues);
-		// }
-		
+        // todo fix replace below with loop JQL issue fetch when git issue #5 is resolved
 		// Deleted keys will result in counting too few issues, to account for deleted issues
 		// todo see issue #7 : fix this sub-optimal method
 		$total = $this->aggregateIssueLogsPerProject('WD', $issues->getTotal() + 25);
@@ -152,11 +144,9 @@ class IssueProvider
 	public function aggregateLogsOfIssue($key)
 	{
 		$total = [];
-		// Fetch worklogs, as per library sample in readme file.
-		$worklogs = $this->service->getWorklog($key)->getWorklogs();
-		// Unfortunate nested for, since we cannot directly access
-		// worklogs with users.
-		// See issue #6
+		// Fetch worklogs through the given issue key
+        $worklogs = $this->service->getWorklog($key)->getWorklogs();
+        
 		foreach ($worklogs as $worklogEntry) {
 			// Test worklog for compatability with current terms.
 			// if global 'users' setting was not empty, do an in_array test
@@ -180,11 +170,17 @@ class IssueProvider
 		}
 		return $total;
 	}
-	
+    
+    /**
+     * Call the extension provider to fetch worklogs.
+     *
+     * @param string $key
+     * @return Worklogs
+     */
 	public function getExtensionWorklogs($key)
 	{
 		if (@!$this->extensionWorklogs) {
-			// todo fix this
+			// todo replace with proper extension class method call
 			$this->extensionWorklogs = $this->extension->fetchExtensionWorklogs();
 		}
 
