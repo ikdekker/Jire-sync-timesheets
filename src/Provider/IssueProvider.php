@@ -33,9 +33,9 @@ class IssueProvider
 		$config = new ArrayConfiguration($settings);
 		$this->service = new IssueService($config);
 		
-		$this->start 	= $start ?? Carbon::parse('first day of last month')->format('Y-m-d');
-		$this->end 		= $end 	 ?? Carbon::parse('last day of last month')->format('Y-m-d');
-		$this->users 	= $users;
+		$this->start    = $start ?? Carbon::parse('first day of last month')->format('Y-m-d');
+		$this->end      = $end   ?? Carbon::parse('last day of last month')->format('Y-m-d');
+		$this->users    = $users;
 
 		$this->timeTrackExtension = false;
     }
