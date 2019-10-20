@@ -7,43 +7,93 @@
  namespace FreshCoders\JST\Proxy;
 
 use FreshCoders\JST\ObjectManager\OdooObjectManager;
-use JiraRestApi\Issue\IssueService;
-use JiraRestApi\JiraClient;
 
 /**
- * Undocumented class
+ * Interface proxy to allow projects to use this library.
  *
  * @author Nick Dekker <nick@freshcoders.nl>
  */
 class TimesheetProxy
 {
 	/**
-	 * @param array $env Any required parameters to import and export
-	 * the timesheet, see restrictions in .....
+	 * A provider that is able to aggregate worklogs.
 	 */
-	public static function exportToOdoo(
-		array $settings = []
+	public $workLogProvider;
+
+	/**
+	 * @param array $settings Any required parameters to import and export
+	 * the timesheet, see restrictions in the function descriptor.
+	 * @param Provider $workLogProvider Provider (abstract / interface will be added)
+	 * with a 'aggregateWorklogs' method. This allows for an issue-style aggregation,
+	 * or a worklog style aggregation.
+	 */
+	public function __construct(
+		array $settings,
+		$workLogProvider
 	)
 	{
 		if (!$settings) {
-			$settings = self::loadDefaultSettings();
+			$settings = $this->loadDefaultSettings();
 		}
-
-		$jiraTimeSheet = self::fetchJiraTimesheet($settings);
-
-		$odooObjectManager = new OdooObjectManager();
-		$odooClient = $odooObjectManager->createOdooClient($settings);
-		$odooClient->createTimesheet($jiraTimeSheet);
+		$this->workLogProvider = $workLogProvider;
 	}
 
-	private function fetchJiraTimesheet($settings)
+	/**
+	 * Import Jira timesheet and output to a portal that is created using
+	 * an output object manager that spawns the appropriate client.
+	 *
+	 * @param [type] $outputObjectManager
+	 * @return void
+	 */
+	public function importExport($outputObjectManager)
 	{
-		$config = new ArrayConfiguration($settings);
-		$issues = new IssueService($config);
-		$issues
+		// todo: change this to array of multiple sheets
+		// Get the Jira Timesheet model of the given time range.
+		$jiraTimesheetData = $this->fetchJiraTimesheet();
+		// $outputClient = $outputObjectManager->createOutputClient();
+		// todo: enable this, add override option aka force delete existing
+		// maybe merge all sheets. 
+		// todo: add loop per user
+		// $outputClient->createTimesheet($jiraTimesheetData['user']);
+	}
+	
+
+	/**
+	 * Export Jira timesheet to an odoo timesheet. Requires Jira settings:
+	 *  - jira_access_token
+	 * also requires Odoo settings:
+	 *  - odoo_username
+	 *  - odoo_password
+	 * if not all users should be exported:
+	 *  - users
+	 * finally, global settings
+	 *  - override (bool)
+	 */
+	public function exportToOdoo()
+	{
+		// Export manager to export the jira time sheet to Odoo.
+		$outputObjectManager = new OdooObjectManager();
+		$this->importExport($outputObjectManager);
 	}
 
-	public static function loadDefaultSettings() {
+	/**
+	 * Accumulate all Jira worklogs of the given time range and return it
+	 * as a model/array of models (maybe an array for now).
+	 * todo: return an actual model, if beneficial.
+	 */
+	private function fetchJiraTimesheet()
+	{
+		// todo: check if settings need to build the worklog earlier or
+		// prune the worklogs differently.
+		$workLogList = $this->workLogProvider->aggregateWorklogs();
+
+		return $workLogList;
+	}
+
+	/**
+	 * Initialize the settings array with some default values.
+	 */
+	public function loadDefaultSettings() {
 		return [];
 	}
 }
