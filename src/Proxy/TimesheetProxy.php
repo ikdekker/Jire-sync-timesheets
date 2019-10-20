@@ -21,7 +21,8 @@ class TimesheetProxy
 	public $workLogProvider;
 
 	/**
-	 * @param array $settings
+	 * @param array $settings Any required parameters to import and export
+	 * the timesheet, see restrictions in the function descriptor.
 	 * @param Provider $workLogProvider Provider (abstract / interface will be added)
 	 * with a 'aggregateWorklogs' method. This allows for an issue-style aggregation,
 	 * or a worklog style aggregation.
@@ -38,6 +39,26 @@ class TimesheetProxy
 	}
 
 	/**
+	 * Import Jira timesheet and output to a portal that is created using
+	 * an output object manager that spawns the appropriate client.
+	 *
+	 * @param [type] $outputObjectManager
+	 * @return void
+	 */
+	public function importExport($outputObjectManager)
+	{
+		// todo: change this to array of multiple sheets
+		// Get the Jira Timesheet model of the given time range.
+		$jiraTimesheetData = $this->fetchJiraTimesheet();
+		// $outputClient = $outputObjectManager->createOutputClient();
+		// todo: enable this, add override option aka force delete existing
+		// maybe merge all sheets. 
+		// todo: add loop per user
+		// $outputClient->createTimesheet($jiraTimesheetData['user']);
+	}
+	
+
+	/**
 	 * Export Jira timesheet to an odoo timesheet. Requires Jira settings:
 	 *  - jira_access_token
 	 * also requires Odoo settings:
@@ -47,35 +68,26 @@ class TimesheetProxy
 	 *  - users
 	 * finally, global settings
 	 *  - override (bool)
-	 * 
-	 * @param array $settings Any required parameters to import and export
-	 * the timesheet, see restrictions in the function descriptor.
 	 */
-	public function exportToOdoo(
-		array $settings = []
-	)
+	public function exportToOdoo()
 	{
-		// todo: change this to array of multiple sheets
-		// Get the Jira Timesheet model of the given time range.
-		$jiraTimeSheet = $this->fetchJiraTimesheet($settings);
-
-		// Export the jira time sheet to Odoo.
-		$odooObjectManager = new OdooObjectManager();
-		$odooClient = $odooObjectManager->createOdooClient($settings);
-		// todo: enable this, add override option aka force delete existing
-		// maybe merge all sheets. 
-		// $odooClient->createTimesheet($jiraTimeSheet);
+		// Export manager to export the jira time sheet to Odoo.
+		$outputObjectManager = new OdooObjectManager();
+		$this->importExport($outputObjectManager);
 	}
 
 	/**
 	 * Accumulate all Jira worklogs of the given time range and return it
-	 * as a model.
+	 * as a model/array of models (maybe an array for now).
+	 * todo: return an actual model, if beneficial.
 	 */
-	private function fetchJiraTimesheet($settings)
+	private function fetchJiraTimesheet()
 	{
 		// todo: check if settings need to build the worklog earlier or
 		// prune the worklogs differently.
-		$this->workLogProvider->aggregateTimeSheets($settings);
+		$workLogList = $this->workLogProvider->aggregateWorklogs();
+
+		return $workLogList;
 	}
 
 	/**
