@@ -13,17 +13,16 @@
  */
 class Odoo9Portal
 {
-	public function __construct(
-		array $settings
-	)
-	{
-		$valid = $this->verifySettings($settings);
+    public function __construct(
+        array $settings
+    ) {
+        $valid = $this->verifySettings($settings);
 
-		if (!$valid) {
-			throw \InvalidArgumentException('Odoo settings are incomplete.');
-		}
+        if (!$valid) {
+            throw \InvalidArgumentException('Odoo settings are incomplete.');
+        }
 
-		$this->settings = $settings;
-	}
+        $this->settings = $settings;
+    }
 
 }
