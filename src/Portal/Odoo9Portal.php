@@ -5,8 +5,9 @@
  */
 
  namespace FreshCoders\JST\Portal;
- 
- use OdooClient\Client;
+
+use Carbon\Carbon;
+use OdooClient\Client;
 
 /**
  * Export the timesheet data to Odoo
@@ -19,19 +20,25 @@ class Odoo9Portal
     
     public $context;
 
-    public function __construct($context)
+    public function __construct($settings)
     {
-        $this->context = $context;
         // Set the odoo model name object for hr_timesheet_sheet.sheet
         $this->_odooSheetModel = 'hr_timesheet_sheet.sheet';
+        
+        $this->client = new Client(
+            $settings['odoo_host'] . '/xmlrpc/2',
+            $settings['odoo_db'],
+            $settings['odoo_user'],
+            $settings['odoo_pass']
+        );
 
-        $this->client = new Client($url, $database, $user, $password);
+        $this->users = $settings['user_mapping'];
     }
 
     public function export($timesheets)
     {
-        foreach ($this->getUserIds() as $user => $odooId) {
-            $this->createTimesheet($timesheet[$user], $userId);
+        foreach ($this->getUserIds() as $user => $userId) {
+            $this->createTimesheet($timesheets[$user], $userId);
         }
     }
 
@@ -47,20 +54,29 @@ class Odoo9Portal
                     "date" => $date,
                     "is_timesheet" => true,
                     'unit_amount' => $duration,
+                    "amount"=> 0,
                     "account_id" => 1,
-                    'user_id' => $userId
+                    "name" => '/',
+                    'user_id' => 13
                 ]
-            ]
+                ];
         }
+        
 
         $data = [
             "employee_id" => $userId,
-            "date_from" => Carbon::parse('first day of last month')->format('Y-m-d'),
-            "date_to" => Carbon::parse('last day of last month')->format('Y-m-d'),
-            "timesheet_ids" => $sheetData
+            "date_from" => Carbon::parse('first day of this month')->format('Y-m-d'),
+            "date_to" => Carbon::parse('last day of this month')->format('Y-m-d'),
+            'name' => false,
+            'department_id' => 3,
+            'company_id' => 1,
+            "timesheet_ids" => $sheetData,
+            'message_follower_ids' => false,
+            'message_ids' => false,
         ];
 
-        $id = $client->create($this->_odooSheetModel, $data);
+        $id = $this->client->create($this->_odooSheetModel, $data);
+        
     }
 
     public function getUserIds()

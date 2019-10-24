@@ -6,6 +6,8 @@
 
  namespace FreshCoders\JST\ObjectManager;
 
+use FreshCoders\JST\Portal\Odoo9Portal;
+
 /**
  * Export the timesheet data to Odoo
  *
@@ -19,16 +21,18 @@ class OdooObjectManager
      * @param  array $settings
      * @return void
      */
-    public function createOdooClient(
+    public function createOutputClient(
         array $settings
     ) {
         $valid = $this->verifySettings($settings);
         
         if (!$valid) {
-            throw \InvalidArgumentException('Odoo settings are incomplete.');
+            throw new \InvalidArgumentException('Odoo settings are incomplete.');
         }
 
-        
+        return new Odoo9Portal(
+            $settings
+        );
     }
 
     /**
@@ -38,11 +42,15 @@ class OdooObjectManager
      */
     private function verifySettings(array $settings)
     {
-        $required = ['url', 'database', 'user', 'password'];
+        $required = ['ODOO_HOST', 'ODOO_DB', 'ODOO_USER', 'ODOO_PASS'];
 
         $valid = array_reduce(
             $required, function ($result, $key) use ($settings) {
-                return $result === false ? false : in_array($key, $settings);
+                return $result === false ? false : 
+                array_key_exists(
+                    strtolower($key),
+                    $settings
+                );
             }, true
         );
 

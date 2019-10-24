@@ -33,9 +33,7 @@ class TimesheetProxy
         array $settings,
         $workLogProvider
     ) {
-        if (!$settings) {
-            $settings = $this->loadDefaultSettings();
-        }
+        $this->settings = $settings ?? $this->loadDefaultSettings();
         $this->workLogProvider = $workLogProvider;
     }
 
@@ -51,11 +49,11 @@ class TimesheetProxy
         // todo: change this to array of multiple sheets
         // Get the Jira Timesheet model of the given time range.
         $jiraTimesheetData = $this->_fetchJiraTimesheet();
-        // $outputClient = $outputObjectManager->createOutputClient();
+        $outputClient = $outputObjectManager->createOutputClient($this->settings);
         // todo: enable this, add override option aka force delete existing
         // maybe merge all sheets. 
         // todo: add loop per user
-        // $outputClient->createTimesheet($jiraTimesheetData['user']);
+        $outputClient->export($jiraTimesheetData);
     }
     
 
