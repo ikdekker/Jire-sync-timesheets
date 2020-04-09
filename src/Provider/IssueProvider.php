@@ -78,7 +78,7 @@ class IssueProvider
     {
         foreach ($total as $clause => $logsByDate) {
             foreach ($logsByDate as $date => $logTime) {
-                $total[$clause][$date] = gmdate("H:i", $logTime);
+                $total[$clause][$date] = gmdate("H", $logTime) + gmdate("i", $logTime) / 60;
             }
         }
 

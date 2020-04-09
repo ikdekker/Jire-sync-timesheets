@@ -14,7 +14,8 @@
         "lesstif/php-jira-rest-client": "^1.41",
         "robroypt/odoo-client": "v1.0beta",
         "zendframework/zend-http": "^2.10",
-        "nesbot/carbon": "^2.25"
+        "nesbot/carbon": "^2.25",
+        "symfony/yaml": "^4.3"
     },
     "autoload": {
         "psr-4": {
