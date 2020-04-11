@@ -14,7 +14,7 @@ use OdooClient\Client;
  *
  * @author Nick Dekker <nick@freshcoders.nl>
  */
-class Odoo9Portal
+class Odoo12Portal extends OdooPortal
 {
     private $_odooSheetModel;
     
@@ -23,7 +23,7 @@ class Odoo9Portal
     public function __construct($settings)
     {
         // Set the odoo model name object for hr_timesheet_sheet.sheet
-        $this->_odooSheetModel = 'hr_timesheet_sheet.sheet';
+        $this->_odooSheetModel = 'account.analytic.line'; // todo: update?
         
         $this->client = new Client(
             $settings['odoo_host'] . '/xmlrpc/2',
@@ -47,40 +47,22 @@ class Odoo9Portal
 
     public function createTimesheet($timesheet, $employeeId)
     {
-        $sheetData = [];
-
+        $ids = [];
         $userId = $this->getUserId($employeeId);
         foreach ($timesheet as $date => $duration) {
-            $sheetData[] = [
-                0,
-                false,
-                [
-                    "date" => $date,
-                    "is_timesheet" => true,
-                    'unit_amount' => $duration,
-                    "amount"=> 0,
-                    "account_id" => 1,
-                    "name" => '/',
-                    'user_id' => $userId
-                ]
-                ];
+            $data = [
+                "date" => $date,
+                'unit_amount' => $duration,
+                "project_id" => 10,
+                "name" => 'Import from Jira Clocking - ' . Carbon::parse('first day of last month')->format('M'),
+                'user_id' => $userId
+            ];
+            
+            $ids[] = $this->client->create($this->_odooSheetModel, $data);
         }
         
 
-        $data = [
-            "employee_id" => $employeeId,
-            "date_from" => Carbon::parse('first day of last month')->format('Y-m-d'),
-            "date_to" => Carbon::parse('last day of last month')->format('Y-m-d'),
-            'name' => false,
-            'department_id' => 3,
-            'company_id' => 1,
-            "timesheet_ids" => $sheetData,
-            'message_follower_ids' => false,
-            'message_ids' => false,
-        ];
-        
-        $id = $this->client->create($this->_odooSheetModel, $data);
-        return (bool) $id;
+        return [$ids];
     }
 
     public function getUserId($uid)
