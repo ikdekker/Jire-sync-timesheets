@@ -6,7 +6,8 @@
 
  namespace FreshCoders\JST\ObjectManager;
 
-use FreshCoders\JST\Portal\Odoo9Portal;
+ use FreshCoders\JST\Portal\Odoo9Portal;
+ use FreshCoders\JST\Portal\Odoo12Portal;
 
 /**
  * Export the timesheet data to Odoo
@@ -15,6 +16,20 @@ use FreshCoders\JST\Portal\Odoo9Portal;
  */
 class OdooObjectManager
 {
+    public function createOdooPortal($settings)
+    {
+        switch ($settings['odoo_version']) {
+            case 9:
+                $odooPortal = new Odoo9Portal($settings);
+            break;
+            case 12:
+                $odooPortal = new Odoo12Portal($settings);
+            break;
+        }
+
+        return $odooPortal;
+    }
+
     /**
      * Create an Odoo client, verifying the settings beforehand.
      *
@@ -30,9 +45,7 @@ class OdooObjectManager
             throw new \InvalidArgumentException('Odoo settings are incomplete.');
         }
 
-        return new Odoo9Portal(
-            $settings
-        );
+        return $this->createOdooPortal($settings);
     }
 
     /**
