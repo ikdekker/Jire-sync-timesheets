@@ -14,7 +14,7 @@ use OdooClient\Client;
  *
  * @author Nick Dekker <nick@freshcoders.nl>
  */
-class Odoo9Portal
+abstract class OdooPortal
 {
     private $_odooSheetModel;
     
@@ -45,43 +45,7 @@ class Odoo9Portal
         }
     }
 
-    public function createTimesheet($timesheet, $employeeId)
-    {
-        $sheetData = [];
-
-        $userId = $this->getUserId($employeeId);
-        foreach ($timesheet as $date => $duration) {
-            $sheetData[] = [
-                0,
-                false,
-                [
-                    "date" => $date,
-                    "is_timesheet" => true,
-                    'unit_amount' => $duration,
-                    "amount"=> 0,
-                    "account_id" => 1,
-                    "name" => '/',
-                    'user_id' => $userId
-                ]
-                ];
-        }
-        
-
-        $data = [
-            "employee_id" => $employeeId,
-            "date_from" => Carbon::parse('first day of last month')->format('Y-m-d'),
-            "date_to" => Carbon::parse('last day of last month')->format('Y-m-d'),
-            'name' => false,
-            'department_id' => 3,
-            'company_id' => 1,
-            "timesheet_ids" => $sheetData,
-            'message_follower_ids' => false,
-            'message_ids' => false,
-        ];
-        
-        $id = $this->client->create($this->_odooSheetModel, $data);
-        return (bool) $id;
-    }
+    abstract function createTimesheet($timesheet, $employeeId);
 
     public function getUserId($uid)
     {

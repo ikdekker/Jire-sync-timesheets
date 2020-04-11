@@ -67,7 +67,7 @@ class IssueProvider
         // todo fix replace below with loop JQL issue fetch when git issue #5 is resolved
         // Deleted keys will result in counting too few issues, to account for deleted issues
         // todo see issue #7 : fix this sub-optimal method
-        $total = $this->aggregateIssueLogsPerProject('WD', $issues->getTotal() + 25);
+        $total = $this->aggregateIssueLogsPerProject('WD', $issues->getTotal() + 180);
         $total = $this->reformatTimestamps($total);
 
         return $total;
@@ -117,13 +117,18 @@ class IssueProvider
         
         $total = [];
         for ($key = 1; $key <= $maxKey; $key++) {
+            $verbosity = 2; // todo: create CLI option..
+            if ($verbosity > 1) {
+                $percentage = $key / $maxKey * 100;
+                $percentage = round($percentage, 2);
+                echo 'Issue: ' . $key . ' | Status: ' . $key . '/' . $maxKey . " (" . $percentage . '%)' . "\r";
+            }
             if ($this->timeTrackExtension) {
                 // $worklogs = $this->getExtensionWorklogs($issue->key);
                 // if (empty($worklogs)) continue;
             }
             try {
                 $projKey = $project . '-' . $key;
-                var_dump($projKey);
                 $issueTotal = $this->aggregateLogsOfIssue($projKey);
             } catch (JiraException $e) {
                 // jira issue probably didnt exist
@@ -170,8 +175,7 @@ class IssueProvider
             }
             
             // Default grouping is by user.
-            $clause = $worklogEntry->author['name'];
-            
+            $clause = $worklogEntry->author['displayName'];
             @$total[$clause][$workDate] += $worklogEntry->timeSpentSeconds;
         }
         return $total;

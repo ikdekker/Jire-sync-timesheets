@@ -8,7 +8,7 @@ This library is a one-way synchronization tool for exporting timesheets clocked 
 
 ### Usage
 
-To start using this library, clone it and configure using a .env file based on your export preference. This can be done by copying the .env.dist into .env and modyfying parameters.
+To start using this library, clone it and configure using a .env file based on your export preference. This can be done by copying the .env.dist into .env and modifying parameters.
 
 This library aims to make it possible to synchronize timesheets for any selection of users, allowing overrides or additions to extisting timesheets of the target platform.
 
@@ -22,10 +22,11 @@ sync.php uses the src/Proxy/TimeSheetProxy.php object to set up and execute the 
 
 ### Portals
 
-Exported export portals as of 24-10-2019:
+Exported export portals as of 2020-04-09:
 - Odoo 9
+- Odoo 12
 
-No additional support is planned at this time.
+No additional support is planned at this time. Odoo12Portal may work for Odoo versions > 10.
 
 ### License
 

@@ -22,6 +22,7 @@ $parsedUsers = Yaml::parseFile(__DIR__ . '/../config/user_map.yml');
 
 $proxy = new TimesheetProxy(
     [
+    'odoo_version' => getenv('ODOO_VERSION'),
     'odoo_user' => getenv('ODOO_USER'),
     'odoo_db' => getenv('ODOO_DB'),
     'odoo_pass' => getenv('ODOO_PASS'),
