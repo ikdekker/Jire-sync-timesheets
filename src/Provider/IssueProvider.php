@@ -67,7 +67,7 @@ class IssueProvider
         // todo fix replace below with loop JQL issue fetch when git issue #5 is resolved
         // Deleted keys will result in counting too few issues, to account for deleted issues
         // todo see issue #7 : fix this sub-optimal method
-        $total = $this->aggregateIssueLogsPerProject('WD', $issues->getTotal() + 180);
+        $total = $this->aggregateIssueLogsPerProject('WD', $issues->getTotal() + 250);
         $total = $this->reformatTimestamps($total);
 
         return $total;

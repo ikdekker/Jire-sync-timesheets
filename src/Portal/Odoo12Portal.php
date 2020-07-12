@@ -48,14 +48,13 @@ class Odoo12Portal extends OdooPortal
     public function createTimesheet($timesheet, $employeeId)
     {
         $ids = [];
-        $userId = $this->getUserId($employeeId);
         foreach ($timesheet as $date => $duration) {
             $data = [
                 "date" => $date,
                 'unit_amount' => $duration,
                 "project_id" => 10,
                 "name" => 'Import from Jira Clocking - ' . Carbon::parse('first day of last month')->format('M'),
-                'user_id' => $userId
+                'user_id' => $employeeId
             ];
             
             $ids[] = $this->client->create($this->_odooSheetModel, $data);
@@ -67,13 +66,8 @@ class Odoo12Portal extends OdooPortal
 
     public function getUserId($uid)
     {
-        // todo: should call on user from odoo
-        $map = [
-            8 => 13,
-            14 => 26,
-            15 => 27
-        ];
-        return $map[$uid];
+        throw new Exception("Depricated", 1);
+        
     }
 
     public function getEmployeeIds()
