@@ -5,7 +5,7 @@ use FreshCoders\JST\Provider\IssueProvider;
 use FreshCoders\JST\Proxy\TimesheetProxy;
 use Symfony\Component\Yaml\Yaml;
 
-require_once '../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $dotenv = Dotenv::create(__DIR__ . '/..');
 $dotenv->load();
