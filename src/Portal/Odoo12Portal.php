@@ -66,7 +66,7 @@ class Odoo12Portal extends OdooPortal
 
     public function getUserId($uid)
     {
-        throw new Exception("Depricated", 1);
+        throw new \Exception("Deprecated", 1);
         
     }
 
